@@ -17,7 +17,7 @@ class MovingRectangle:
     y = 0
     width = 1024
     height = 576
-    speed = 4000.0
+    speed = 5000.0
     current_direction: MovementDirection = None
 
     def update(self, delta: float) -> tp.NoReturn:

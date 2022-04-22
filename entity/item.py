@@ -2,7 +2,7 @@ from .entity import AbstractEntity, _ENTITY_SIZE
 from .enemy import Enemy, EnemyType
 from .player import Player
 from scene import Tile
-from pyray import Texture2D, Image, load_texture_from_image, load_image, draw_texture_rec, Rectangle, Vector2, RAYWHITE
+from pyray import Texture2D, Image, load_texture_from_image, load_image, draw_texture_rec, Rectangle, Vector2, RAYWHITE, load_wave, load_sound_from_wave, play_sound
 import typing as tp
 
 
@@ -26,7 +26,9 @@ class Item(AbstractEntity):
             # Make the object disappear
             self.x = -100
             self.y = -100
-            print("PICKED")
+
+            if self.name == "A Rock":
+                other.damage += 2
 
     def update(self, delta: float, *args) -> tp.NoReturn:
         return super().update(delta, *args)

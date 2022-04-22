@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from pyray import Color, DARKBLUE, BLUE, YELLOW, draw_rectangle
+from pyray import Color, DARKBLUE, BLUE, YELLOW, BLACK, draw_rectangle
 
 
 @dataclass
 class Tile:
 
+    name: str
     x: int
     y: int
     color: Color
@@ -15,9 +16,12 @@ class Tile:
 
 def get_tile_by_character(x: int, y: int, char: str) -> Tile:
     TILES = {
-        'X': Tile(x, y, DARKBLUE),
-        'O': Tile(x, y, BLUE),
-        'T': Tile(x, y, YELLOW)
+        'X': Tile('floor', x, y, DARKBLUE),
+        'O': Tile('wall', x, y, BLUE),
+        'T': Tile('floor_t', x, y, BLACK),
+        '^': Tile('teleport_up', x, y, YELLOW),
+        '>': Tile('teleport_right', x, y, YELLOW),
+        '<': Tile('teleport_left', x, y, YELLOW)
     }
 
     return TILES[char]

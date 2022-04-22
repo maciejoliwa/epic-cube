@@ -13,6 +13,7 @@ class Game:
 
     current_scene: Scene
     collected_items: tp.List[Item] = []
+    state: GameState = GameState.MENU
 
     def __init__(self):
         pass

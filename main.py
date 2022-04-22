@@ -3,12 +3,30 @@ from pyray import *
 
 from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item
 from scene import Scene
-from game import Game
+from game import Game, GameState
 from ui import UIManager, MovementDirection, MovingRectangle
 
 def main() -> tp.NoReturn:
     init_window(1024, 576, "Epic Cube")
+
+    init_audio_device()
+
+    set_target_fps(60)
     
+    # Musics
+    pandora = load_music_stream('./music/pandora.mp3')
+    play_music_stream(pandora)
+
+    # Sounds
+    shoot_wav = load_wave('./sounds/shoot.wav')
+    shoot_snd = load_sound_from_wave(shoot_wav)
+
+    enemy_hit_wav = load_wave('./sounds/enemy_hit.wav')
+    enemy_hit_snd = load_sound_from_wave(enemy_hit_wav)
+
+    _item_pickup_wav = load_wave('./sounds/item.wav')
+    _item_pickup_snd = load_sound_from_wave(_item_pickup_wav)
+
     player = Player(100, 100)
     game = Game()
 
@@ -18,48 +36,49 @@ def main() -> tp.NoReturn:
     bullets: tp.List[Bullet] = []
     enemies: tp.List[Enemy] = [Enemy(200, 200, EnemyType.CIRCLE, 1)]
 
-    test_item = Item("Dead Sea Scrolls", 400, 300, 'items/item1.png')
+    test_item = Item("A Rock", 400, 300, 'items/item1.png')
 
     game.current_scene = Scene.load_random_map()
     
-    set_target_fps(60)
 
     while not window_should_close():
+        update_music_stream(pandora)
         delta = get_frame_time()
 
-        if is_key_pressed(KEY_L):
-            moving_rectangle.move(MovementDirection.TO_RIGHT)
-            game.current_scene = Scene.load_random_map()
-        
-        if is_key_pressed(KEY_J):
-            moving_rectangle.move(MovementDirection.TO_LEFT)
+        if is_key_pressed(KEY_M):
             game.current_scene = Scene.load_random_map()
 
-        if is_key_pressed(KEY_I):
-            moving_rectangle.move(MovementDirection.TO_TOP)
-            game.current_scene = Scene.load_random_map()
-
-        if is_key_pressed(KEY_K):
-            moving_rectangle.move(MovementDirection.TO_BOTTOM)
-            game.current_scene = Scene.load_random_map()
-        
         if is_key_pressed(KEY_RIGHT):
-            bullets.append(Bullet(player.x, player.y, BulletDirection.RIGHT))
+            play_sound(shoot_snd)
+            bullets.append(Bullet(player.x + 16, player.y + 16, BulletDirection.RIGHT))
 
         if is_key_pressed(KEY_LEFT):
-            bullets.append(Bullet(player.x, player.y, BulletDirection.LEFT))
+            play_sound(shoot_snd)
+            bullets.append(Bullet(player.x + 16, player.y + 16, BulletDirection.LEFT))
 
         if is_key_pressed(KEY_DOWN):
-            bullets.append(Bullet(player.x, player.y, BulletDirection.DOWN))
+            play_sound(shoot_snd)            
+            bullets.append(Bullet(player.x + 16, player.y + 16, BulletDirection.DOWN))
 
         if is_key_pressed(KEY_UP):
-            bullets.append(Bullet(player.x, player.y, BulletDirection.UP))
+            play_sound(shoot_snd)
+            bullets.append(Bullet(player.x + 16, player.y + 16, BulletDirection.UP))
 
         player.update(delta)
         moving_rectangle.update(delta)
 
         if len(enemies) > 0:
             for enemy in enemies:
+
+                for bullet in bullets:
+                    if bullet is not None:
+
+                        if check_collision_recs(
+                            Rectangle(bullet.x, bullet.y, 8, 8),
+                            Rectangle(enemy.x, enemy.y, 32, 32)
+                        ):
+                            enemy.on_collision(bullet, None, player.damage)
+                            bullets[bullets.index(bullet)] = None
 
                 if check_collision_recs(
                     Rectangle(player.x, player.y, 32, 32),
@@ -68,14 +87,37 @@ def main() -> tp.NoReturn:
                     player.on_collision(enemy, None)
 
                 enemy.update(delta)
+
+        enemies = list(filter(lambda e: e.health > 0, enemies))
         
         if check_collision_recs(
                     Rectangle(player.x, player.y, 32, 32),
                     Rectangle(test_item.x, test_item.y, 32, 32)
                 ):
+                    play_sound(_item_pickup_snd)
                     test_item.on_collision(player, None)
                     
         ui.update(player._hp)
+
+        for tile in game.current_scene.tiles:
+
+            if check_collision_recs(
+                Rectangle(player.x, player.y, 32, 32),
+                Rectangle(tile.x, tile.y, 32, 32)
+            ):
+                if tile.name == 'teleport_up':
+                    moving_rectangle.move(MovementDirection.TO_BOTTOM)
+                    game.current_scene = Scene.load_random_map()
+
+                elif tile.name == 'teleport_right':
+                    moving_rectangle.move(MovementDirection.TO_LEFT)
+                    player.x = 32
+                    game.current_scene = Scene.load_random_map()
+
+                elif tile.name == 'teleport_left':
+                    moving_rectangle.move(MovementDirection.TO_RIGHT)
+                    player.x = 1024 - 32
+                    game.current_scene = Scene.load_random_map()
 
         if len(bullets) > 0:
             for bullet in bullets:
@@ -116,6 +158,7 @@ def main() -> tp.NoReturn:
         moving_rectangle.draw()
         ui.draw()
         end_drawing()
+
     close_window()
 
 

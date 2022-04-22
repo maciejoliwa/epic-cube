@@ -11,7 +11,8 @@ class Player(AbstractEntity):
     def __init__(self, init_x: int, init_y: int):
         self.x = init_x
         self.y = init_y
-        self.speed = 250.0
+        self.damage = 5
+        self.speed = 450.0
 
     def update(self, delta: float) -> tp.NoReturn:
         calculated_speed = int(delta * self.speed)
