@@ -4,7 +4,7 @@ from pyray import *
 from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item
 from scene import Scene
 from game import Game
-from ui import UIManager
+from ui import UIManager, MovementDirection, MovingRectangle
 
 def main() -> tp.NoReturn:
     init_window(1024, 576, "Epic Cube")
@@ -12,6 +12,7 @@ def main() -> tp.NoReturn:
     player = Player(100, 100)
     game = Game()
 
+    moving_rectangle = MovingRectangle()
     ui = UIManager(player._hp)
 
     bullets: tp.List[Bullet] = []
@@ -25,6 +26,18 @@ def main() -> tp.NoReturn:
 
     while not window_should_close():
         delta = get_frame_time()
+
+        if is_key_pressed(KEY_L):
+            moving_rectangle.move(MovementDirection.TO_RIGHT)
+        
+        if is_key_pressed(KEY_J):
+            moving_rectangle.move(MovementDirection.TO_LEFT)
+        
+        if is_key_pressed(KEY_I):
+            moving_rectangle.move(MovementDirection.TO_TOP)
+        
+        if is_key_pressed(KEY_K):
+            moving_rectangle.move(MovementDirection.TO_BOTTOM)
         
         if is_key_pressed(KEY_RIGHT):
             bullets.append(Bullet(player.x, player.y, BulletDirection.RIGHT))
@@ -39,6 +52,7 @@ def main() -> tp.NoReturn:
             bullets.append(Bullet(player.x, player.y, BulletDirection.UP))
 
         player.update(delta)
+        moving_rectangle.update(delta)
 
         if len(enemies) > 0:
             for enemy in enemies:
@@ -95,6 +109,7 @@ def main() -> tp.NoReturn:
         test_item.draw()
         player.draw()
 
+        moving_rectangle.draw()
         ui.draw()
         end_drawing()
     close_window()

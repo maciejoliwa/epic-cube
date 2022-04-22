@@ -1,5 +1,11 @@
 from scene import Scene
+from enum import IntEnum
 
+class GameState(IntEnum):
+
+    MENU = 0
+    GAME = 1
+    GAME_OVER = 2
 
 class Game:
 
