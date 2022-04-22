@@ -7,10 +7,12 @@ class Scene:
 
     fname: str
     tiles: tp.List[Tile]
+    is_item_room = False
 
-    def __init__(self, fname: str) -> tp.NoReturn:
+    def __init__(self, fname: str, is_item_room: bool = False) -> tp.NoReturn:
         self.fname = fname
         self.tiles = self._read_map_file()
+        self.is_item_room = is_item_room
 
     @staticmethod
     def load_random_map() -> 'Scene':

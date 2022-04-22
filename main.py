@@ -29,15 +29,19 @@ def main() -> tp.NoReturn:
 
         if is_key_pressed(KEY_L):
             moving_rectangle.move(MovementDirection.TO_RIGHT)
+            game.current_scene = Scene.load_random_map()
         
         if is_key_pressed(KEY_J):
             moving_rectangle.move(MovementDirection.TO_LEFT)
-        
+            game.current_scene = Scene.load_random_map()
+
         if is_key_pressed(KEY_I):
             moving_rectangle.move(MovementDirection.TO_TOP)
-        
+            game.current_scene = Scene.load_random_map()
+
         if is_key_pressed(KEY_K):
             moving_rectangle.move(MovementDirection.TO_BOTTOM)
+            game.current_scene = Scene.load_random_map()
         
         if is_key_pressed(KEY_RIGHT):
             bullets.append(Bullet(player.x, player.y, BulletDirection.RIGHT))
