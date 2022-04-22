@@ -1,5 +1,6 @@
 from .entity import AbstractEntity, _ENTITY_SIZE
 from .enemy import Enemy, EnemyType
+from .player import Player
 from scene import Tile
 from pyray import Texture2D, Image, load_texture_from_image, load_image, draw_texture_rec, Rectangle, Vector2, RAYWHITE
 import typing as tp
@@ -21,10 +22,14 @@ class Item(AbstractEntity):
         self.texture = load_texture_from_image(image)
 
     def on_collision(self, other: tp.Any, callback: tp.Callable):
-        return super().on_collision(other, callback)
+        if isinstance(other, Player):
+            # Make the object disappear
+            self.x = -100
+            self.y = -100
+            print("PICKED")
 
     def update(self, delta: float, *args) -> tp.NoReturn:
         return super().update(delta, *args)
 
     def draw(self) -> tp.NoReturn:
-        draw_texture_rec(self.texture, Rectangle(self.x, self.y, 0, 0), Vector2(0, 0), RAYWHITE)
+        draw_texture_rec(self.texture, Rectangle(0, 0, 32, 32), Vector2(self.x, self.y), RAYWHITE)

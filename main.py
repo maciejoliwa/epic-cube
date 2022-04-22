@@ -1,7 +1,7 @@
 import typing as tp
 from pyray import *
 
-from entity import Player, Bullet, BulletDirection, Enemy, EnemyType
+from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item
 from scene import Scene
 from game import Game
 from ui import UIManager
@@ -16,6 +16,8 @@ def main() -> tp.NoReturn:
 
     bullets: tp.List[Bullet] = []
     enemies: tp.List[Enemy] = [Enemy(200, 200, EnemyType.CIRCLE, 1)]
+
+    test_item = Item("Dead Sea Scrolls", 400, 300, 'items/item1.png')
 
     game.current_scene = Scene.load_random_map()
     
@@ -49,6 +51,12 @@ def main() -> tp.NoReturn:
 
                 enemy.update(delta)
         
+        if check_collision_recs(
+                    Rectangle(player.x, player.y, 32, 32),
+                    Rectangle(test_item.x, test_item.y, 32, 32)
+                ):
+                    test_item.on_collision(player, None)
+                    
         ui.update(player._hp)
 
         if len(bullets) > 0:
@@ -84,6 +92,7 @@ def main() -> tp.NoReturn:
                 if bullet is not None:
                     bullet.draw()
 
+        test_item.draw()
         player.draw()
 
         ui.draw()
