@@ -12,6 +12,7 @@ class GameState(IntEnum):
 class Game:
 
     current_scene: Scene
+    score: int = 0
     collected_items: tp.List[Item] = []
     state: GameState = GameState.MENU
 

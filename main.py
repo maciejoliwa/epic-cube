@@ -105,19 +105,20 @@ def main() -> tp.NoReturn:
                 Rectangle(player.x, player.y, 32, 32),
                 Rectangle(tile.x, tile.y, 32, 32)
             ):
-                if tile.name == 'teleport_up':
-                    moving_rectangle.move(MovementDirection.TO_BOTTOM)
-                    game.current_scene = Scene.load_random_map()
+                if len(enemies) == 0:  # Make sure there are no enemies left in the current room
+                    if tile.name == 'teleport_up':
+                        moving_rectangle.move(MovementDirection.TO_BOTTOM)
+                        game.current_scene = Scene.load_random_map()
 
-                elif tile.name == 'teleport_right':
-                    moving_rectangle.move(MovementDirection.TO_LEFT)
-                    player.x = 32
-                    game.current_scene = Scene.load_random_map()
+                    elif tile.name == 'teleport_right':
+                        moving_rectangle.move(MovementDirection.TO_LEFT)
+                        player.x = 32
+                        game.current_scene = Scene.load_random_map()
 
-                elif tile.name == 'teleport_left':
-                    moving_rectangle.move(MovementDirection.TO_RIGHT)
-                    player.x = 1024 - 32
-                    game.current_scene = Scene.load_random_map()
+                    elif tile.name == 'teleport_left':
+                        moving_rectangle.move(MovementDirection.TO_RIGHT)
+                        player.x = 960
+                        game.current_scene = Scene.load_random_map()
 
         if len(bullets) > 0:
             for bullet in bullets:
