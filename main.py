@@ -1,6 +1,7 @@
 import typing as tp
 from pyray import *
 
+from functools import partial
 from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity
 from scene import Scene
 from game import Game, GameState
@@ -42,7 +43,7 @@ def main() -> tp.NoReturn:
 
     seconds_left = 60  # If there are 0 seconds left, the game ends (very sad)
     frames_passed = 0  # We use that for the funny timer, every 60 frames_passed we decrease one second from the timer
-    
+
     while not window_should_close():
         frames_passed += 1
 

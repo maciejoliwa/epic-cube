@@ -40,3 +40,6 @@ class Enemy(AbstractEntity):
 
         if isinstance(other, Bullet):
             self.health -= player_damage
+
+        if callback is not None:
+            callback()
