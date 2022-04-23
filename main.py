@@ -1,7 +1,7 @@
 import typing as tp
 from pyray import *
 
-from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item
+from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity
 from scene import Scene
 from game import Game, GameState
 from ui import UIManager, MovementDirection, MovingRectangle
@@ -73,38 +73,26 @@ def main() -> tp.NoReturn:
                 for bullet in bullets:
                     if bullet is not None:
 
-                        if check_collision_recs(
-                            Rectangle(bullet.x, bullet.y, 8, 8),
-                            Rectangle(enemy.x, enemy.y, 32, 32)
-                        ):
+                        if AbstractEntity.entities_collided(bullet, enemy):
                             enemy.on_collision(bullet, None, player.damage)
                             bullets[bullets.index(bullet)] = None
 
-                if check_collision_recs(
-                    Rectangle(player.x, player.y, 32, 32),
-                    Rectangle(enemy.x, enemy.y, 32, 32)
-                ):
+                if AbstractEntity.entities_collided(player, enemy):
                     player.on_collision(enemy, None)
 
                 enemy.update(delta)
 
         enemies = list(filter(lambda e: e.health > 0, enemies))
         
-        if check_collision_recs(
-                    Rectangle(player.x, player.y, 32, 32),
-                    Rectangle(test_item.x, test_item.y, 32, 32)
-                ):
-                    play_sound(_item_pickup_snd)
-                    test_item.on_collision(player, None)
+        if AbstractEntity.entities_collided(test_item, player):
+            play_sound(_item_pickup_snd)
+            test_item.on_collision(player, None)
                     
         ui.update(player._hp)
 
         for tile in game.current_scene.tiles:
 
-            if check_collision_recs(
-                Rectangle(player.x, player.y, 32, 32),
-                Rectangle(tile.x, tile.y, 32, 32)
-            ):
+            if AbstractEntity.entities_collided(player, tile):
                 if len(enemies) == 0:  # Make sure there are no enemies left in the current room
                     if tile.name == 'teleport_up':
                         moving_rectangle.move(MovementDirection.TO_BOTTOM)
