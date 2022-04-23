@@ -39,9 +39,17 @@ def main() -> tp.NoReturn:
     test_item = Item("A Rock", 400, 300, 'items/item1.png')
 
     game.current_scene = Scene.load_random_map()
-    
 
+    seconds_left = 60  # If there are 0 seconds left, the game ends (very sad)
+    frames_passed = 0  # We use that for the funny timer, every 60 frames_passed we decrease one second from the timer
+    
     while not window_should_close():
+        frames_passed += 1
+
+        if frames_passed == 60:
+            seconds_left -= 1
+            frames_passed = 0
+
         update_music_stream(pandora)
         delta = get_frame_time()
 
