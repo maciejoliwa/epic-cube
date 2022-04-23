@@ -96,7 +96,7 @@ def main() -> tp.NoReturn:
             play_sound(_item_pickup_snd)
             test_item.on_collision(player, None)
                     
-        ui.update(player._hp)
+        ui.update(player._hp, seconds_left)
 
         for tile in game.current_scene.tiles:
 
