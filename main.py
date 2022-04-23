@@ -108,6 +108,7 @@ def main() -> tp.NoReturn:
                 if len(enemies) == 0:  # Make sure there are no enemies left in the current room
                     if tile.name == 'teleport_up':
                         moving_rectangle.move(MovementDirection.TO_BOTTOM)
+                        player.y = 540
                         game.current_scene = Scene.load_random_map()
 
                     elif tile.name == 'teleport_right':
