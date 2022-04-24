@@ -12,7 +12,7 @@ class UIManager:
         self.seconds_left = seconds_left
 
     def draw(self):
-        s_left_length = measure_text(f"Seconds Left: {self.seconds_left}", 32)
+        s_left_length = measure_text(f"Seconds Left: {self.seconds_left.get()}", 32)
 
         draw_text(f"HP: {self.player_hp}/6", 25, 25, 32, BLACK)
-        draw_text(f"Seconds Left: {self.seconds_left}", int(1024/2) - int(s_left_length/2), 25, 32, BLACK)
+        draw_text(f"Seconds Left: {self.seconds_left.get()}", int(1024/2) - int(s_left_length/2), 25, 32, BLACK)

@@ -5,6 +5,7 @@ from functools import partial
 from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity
 from scene import Scene
 from game import Game, GameState
+from ref import Reference
 from ui import UIManager, MovementDirection, MovingRectangle
 
 def main() -> tp.NoReturn:
@@ -16,9 +17,16 @@ def main() -> tp.NoReturn:
     
     # Musics
     pandora = load_music_stream('./music/pandora.mp3')
+    set_music_pitch(pandora, 1.1)
     play_music_stream(pandora)
 
     # Sounds
+    time_up_wav = load_wave('./sounds/time_up.wav')
+    time_up_snd = load_sound_from_wave(time_up_wav)
+
+    time_pass_wav = load_wave('./sounds/time_passes.wav')
+    time_pass_snd = load_sound_from_wave(time_pass_wav)
+
     shoot_wav = load_wave('./sounds/shoot.wav')
     shoot_snd = load_sound_from_wave(shoot_wav)
 
@@ -41,14 +49,24 @@ def main() -> tp.NoReturn:
 
     game.current_scene = Scene.load_random_map()
 
-    seconds_left = 60  # If there are 0 seconds left, the game ends (very sad)
+    seconds_left = Reference(60)  # If there are 0 seconds left, the game ends (very sad)
     frames_passed = 0  # We use that for the funny timer, every 60 frames_passed we decrease one second from the timer
+
+    def increase_seconds(s: int) -> tp.NoReturn:
+        play_sound(time_up_snd)
+        seconds_left.set(seconds_left.get() + s)
+
+    increase_seconds_by_five = partial(increase_seconds, 5)
 
     while not window_should_close():
         frames_passed += 1
 
         if frames_passed == 60:
-            seconds_left -= 1
+            play_sound(time_pass_snd)
+
+            if seconds_left.get() > 0:
+                seconds_left.set(seconds_left.get() - 1) 
+            
             frames_passed = 0
 
         update_music_stream(pandora)
@@ -83,7 +101,8 @@ def main() -> tp.NoReturn:
                     if bullet is not None:
 
                         if AbstractEntity.entities_collided(bullet, enemy):
-                            enemy.on_collision(bullet, None, player.damage)
+                            play_sound(enemy_hit_snd)
+                            enemy.on_collision(bullet, increase_seconds_by_five, player.damage)
                             bullets[bullets.index(bullet)] = None
 
                 if AbstractEntity.entities_collided(player, enemy):
