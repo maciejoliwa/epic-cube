@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from pyray import Color, DARKBLUE, BLUE, YELLOW, BLACK, WHITE, draw_rectangle
+from pyray import Color, DARKBLUE, BLUE, YELLOW, BLACK, WHITE, RED, draw_rectangle
 
 
 @dataclass
@@ -21,7 +21,8 @@ def get_tile_by_character(x: int, y: int, char: str) -> Tile:
         'T': Tile('floor_t', x, y, WHITE),
         '^': Tile('teleport_up', x, y, YELLOW),
         '>': Tile('teleport_right', x, y, YELLOW),
-        '<': Tile('teleport_left', x, y, YELLOW)
+        '<': Tile('teleport_left', x, y, YELLOW),
+        '-': Tile('damage', x, y, RED)
     }
 
     return TILES[char]

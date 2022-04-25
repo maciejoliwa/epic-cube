@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import typing as tp
 from pyray import *
 
@@ -7,7 +8,7 @@ from scene import Scene
 from game import Game, GameState
 from ref import Reference
 from ui import UIManager, MovementDirection, MovingRectangle
-from random import randrange
+from random import randrange, randint
 
 
 def main() -> tp.NoReturn:
@@ -40,6 +41,9 @@ def main() -> tp.NoReturn:
     enemy_hit_wav = load_wave('./sounds/enemy_hit.wav')
     enemy_hit_snd = load_sound_from_wave(enemy_hit_wav)
 
+    player_hurt_wav = load_wave('./sounds/player_hurt.wav')
+    player_hurt_snd = load_sound_from_wave(player_hurt_wav)
+
     _item_pickup_wav = load_wave('./sounds/item.wav')
     _item_pickup_snd = load_sound_from_wave(_item_pickup_wav)
 
@@ -59,11 +63,18 @@ def main() -> tp.NoReturn:
         Item("Straw Hat", int(1024/2) - 16,
              int(576/2) - 16, 'items/mugiwara.png'),
         Item("Butt Plug", int(1024/2) - 16, int(576/2) - 16, 'items/plug.png'),
+        Item("Black", int(1024/2) - 16, int(576/2) - 16, 'items/black.png'),
     ]
 
-    current_map_item = None  # Item currently on the map
-
-    current_map_item = items[randrange(0, len(items))]
+    current_map_item = Reference(None)  # Item currently on the map
+    
+    def get_random_item():
+        r_number = randint(0, 50)
+        if r_number > 0 and r_number < 10:
+            try:
+                current_map_item.set(items[randrange(0, len(items))])
+            except ValueError:
+                current_map_item.set(Item("Black", int(1024/2) - 16, int(576/2) - 16, 'items/black.png'))
 
     game.current_scene = Scene.load_random_map()
 
@@ -144,36 +155,46 @@ def main() -> tp.NoReturn:
                 if AbstractEntity.entities_collided(player, enemy):
                     if not player_taken_damage:  # We check if the player has any invisibility frames left
                         player_taken_damage = True
+                        play_sound(player_hurt_snd)
                         player.on_collision(enemy, None)
 
                 enemy.update(delta, player.x, player.y)
 
         enemies = list(filter(lambda e: e.health > 0, enemies))
 
-        if current_map_item is not None and AbstractEntity.entities_collided(current_map_item, player):
+        if current_map_item.get() is not None and AbstractEntity.entities_collided(current_map_item.get(), player):
             play_sound(_item_pickup_snd)
-            current_map_item.on_collision(player, None)
+            current_map_item.get().on_collision(player, increase_seconds_by_ten)
 
             # Make sure you cannot get the same item twice
-            items = list(filter(lambda i: i != current_map_item, items))
+            items = list(filter(lambda i: i != current_map_item.get(), items))
 
         ui.update(player._hp, seconds_left)
 
         for tile in game.current_scene.tiles:
 
             if AbstractEntity.entities_collided(player, tile):
+                if tile.name == 'damage':
+                    if not player_taken_damage:
+                        player_taken_damage = True
+                        play_sound(player_hurt_snd)
+                        player._hp -= 1
+
                 if len(enemies) == 0:  # Make sure there are no enemies left in the current room
                     if tile.name == 'teleport_up':
+                        get_random_item()
                         moving_rectangle.move(MovementDirection.TO_BOTTOM)
                         player.y = 540
                         game.current_scene = Scene.load_random_map()
 
                     elif tile.name == 'teleport_right':
+                        get_random_item()
                         moving_rectangle.move(MovementDirection.TO_LEFT)
                         player.x = 32
                         game.current_scene = Scene.load_random_map()
 
                     elif tile.name == 'teleport_left':
+                        get_random_item()
                         moving_rectangle.move(MovementDirection.TO_RIGHT)
                         player.x = 960
                         game.current_scene = Scene.load_random_map()
@@ -211,8 +232,8 @@ def main() -> tp.NoReturn:
                 if bullet is not None:
                     bullet.draw()
 
-        if current_map_item is not None:
-            current_map_item.draw()
+        if current_map_item.get() is not None:
+            current_map_item.get().draw()
 
         draw_texture(_PLAYER_GLOW, player.x - 34, player.y - 34, RAYWHITE)
         player.draw()
