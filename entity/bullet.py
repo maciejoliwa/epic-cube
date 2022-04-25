@@ -14,7 +14,7 @@ class BulletDirection(IntEnum):
 
 class Bullet(AbstractEntity):
 
-    _SPEED = 550.0
+    _SPEED = 750.0
 
     def __init__(self, init_x: int, init_y: int, direction: BulletDirection):
         self.x = init_x

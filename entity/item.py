@@ -29,6 +29,14 @@ class Item(AbstractEntity):
 
             if self.name == "A Rock":
                 other.damage += 2
+            
+            if self.name == 'Ukulele':
+                other._hp += 2
+
+            if self.name == 'Straw Hat':
+                other._hp += 1
+                other.damage += 1
+                other.speed += 100.0
 
     def update(self, delta: float, *args) -> tp.NoReturn:
         return super().update(delta, *args)

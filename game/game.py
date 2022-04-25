@@ -14,7 +14,7 @@ class Game:
     current_scene: Scene
     score: int = 0
     collected_items: tp.List[Item] = []
-    state: GameState = GameState.MENU
+    state: GameState = GameState.GAME
 
     def __init__(self):
         pass

@@ -14,6 +14,8 @@ class EnemyType(IntEnum):
 
 class Enemy(AbstractEntity):
 
+    _CIRCLE_SPEED = 200.0
+
     _type: EnemyType
 
     def __init__(self, init_x: int, init_y: int, en_type: EnemyType, damage: int):
@@ -30,7 +32,22 @@ class Enemy(AbstractEntity):
             if self._type == EnemyType.CIRCLE:
                 draw_circle(self.x, self.y, 16, RED)
 
-    def update(self, delta):
+    def update(self, delta, *args):
+        player_x = args[0]
+        player_y = args[1]
+
+        # Cirlces will follow the player
+        if self._type == EnemyType.CIRCLE:
+            if self.x > player_x:
+                self.x -= int(self._CIRCLE_SPEED * delta)
+            if self.x < player_x:
+                self.x += int(self._CIRCLE_SPEED * delta)
+            if self.y > player_y:
+                self.y -= int(self._CIRCLE_SPEED * delta)
+            if self.y < player_y:
+                self.y += int(self._CIRCLE_SPEED * delta)
+
+
         if self.health <= 0:
             self.x = -500
             self.y = -500
