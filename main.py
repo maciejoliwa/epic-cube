@@ -54,8 +54,7 @@ def main() -> tp.NoReturn:
     ui = UIManager(player._hp, _HEART_TEXTURE, _HALF_HEART_TEXTURE)
 
     bullets: tp.List[Bullet] = []
-    enemies: tp.List[Enemy] = [Enemy(200, 200, EnemyType.CIRCLE, 1), Enemy(
-        700, 300, EnemyType.CIRCLE, 1), Enemy(1000, 300, EnemyType.CIRCLE, 1)]
+    enemies: tp.List[Enemy] = []
 
     # From there we shall pick items to put on the map
     items: tp.List[Item] = [
@@ -85,6 +84,17 @@ def main() -> tp.NoReturn:
     invisibility_frames = 15
     invisibility_frames_passed = 0
     frames_passed = 0  # We use that for the funny timer, every 60 frames_passed we decrease one second from the timer
+
+    enemies_to_spawn = Reference(5)
+    all_enemies_spawned = Reference(False)
+
+    def spawn_enemies():
+        r_number = randint(1, 5) * len(list(filter(lambda t: t.name == 'spawner' ,game.current_scene.tiles)))
+        all_enemies_spawned.set(False)
+
+        print(r_number)
+
+        enemies_to_spawn.set(r_number)
 
     def increase_seconds(s: int) -> tp.NoReturn:
         play_sound(time_up_snd)
@@ -158,7 +168,7 @@ def main() -> tp.NoReturn:
                         play_sound(player_hurt_snd)
                         player.on_collision(enemy, None)
 
-                enemy.update(delta, player.x, player.y)
+                enemy.update(delta, player.x, player.y, enemies)
 
         enemies = list(filter(lambda e: e.health > 0, enemies))
 
@@ -173,6 +183,15 @@ def main() -> tp.NoReturn:
 
         for tile in game.current_scene.tiles:
 
+            if tile.name == 'spawner':
+                if not all_enemies_spawned.get():
+                    if frames_passed == 59:
+                        enemies_to_spawn.set(enemies_to_spawn.get() - 1)
+                        enemies.append(Enemy(tile.x, tile.y, EnemyType.TRIANGLE, 1))
+
+                        if enemies_to_spawn.get() == 0:
+                            all_enemies_spawned.set(True)
+
             if AbstractEntity.entities_collided(player, tile):
                 if tile.name == 'damage':
                     if not player_taken_damage:
@@ -186,24 +205,28 @@ def main() -> tp.NoReturn:
                         moving_rectangle.move(MovementDirection.TO_BOTTOM)
                         player.y = 540
                         game.current_scene = Scene.load_random_map()
+                        spawn_enemies()
 
                     elif tile.name == 'teleport_right':
                         get_random_item()
                         moving_rectangle.move(MovementDirection.TO_LEFT)
                         player.x = 32
                         game.current_scene = Scene.load_random_map()
+                        spawn_enemies()
 
                     elif tile.name == 'teleport_left':
                         get_random_item()
                         moving_rectangle.move(MovementDirection.TO_RIGHT)
                         player.x = 960
                         game.current_scene = Scene.load_random_map()
+                        spawn_enemies()
 
         if len(bullets) > 0:
             for bullet in bullets:
 
                 if bullet is not None:
 
+                    # Remove bullets out of bounds
                     if bullet.x > 1032:
                         bullets[bullets.index(bullet)] = None
 
