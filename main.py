@@ -24,13 +24,16 @@ def main() -> tp.NoReturn:
     set_target_fps(60)
 
     # Musics
-    pandora = load_music_stream('./music/pandora.mp3')
-    set_music_pitch(pandora, 1.1)
+    pandora = load_music_stream('./music/p1.mp3')
     play_music_stream(pandora)
+    set_music_pitch(pandora, 0.9)
 
     # Sounds
     time_up_wav = load_wave('./sounds/time_up.wav')
     time_up_snd = load_sound_from_wave(time_up_wav)
+
+    enemy_shoot_wav = load_wave('./sounds/enemy_shoot.wav')
+    enemy_shoot_snd = load_sound_from_wave(enemy_shoot_wav)
 
     time_pass_wav = load_wave('./sounds/time_passes.wav')
     time_pass_snd = load_sound_from_wave(time_pass_wav)
@@ -165,6 +168,7 @@ def main() -> tp.NoReturn:
                 if enemy._type == EnemyType.TRIANGLE:
                     if frames_passed == 59:
                         # Triangles fire bullets in three directions (up, left and right)
+                        play_sound(enemy_shoot_snd)
                         enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.RIGHT))                        
                         enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.LEFT))                        
                         enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.UP))
