@@ -116,9 +116,10 @@ def main() -> tp.NoReturn:
     increase_seconds_by_ten = partial(increase_seconds, 10)
 
     while not window_should_close():
-        frames_passed += 1
+        if player._hp <= 0:
+            game.state = GameState.GAME_OVER
 
-        # if game.state == GameState.GAME:
+        frames_passed += 1
 
         if player_taken_damage:
 
@@ -162,35 +163,36 @@ def main() -> tp.NoReturn:
         player.update(delta)
         moving_rectangle.update(delta)
 
-        if len(enemies) > 0:
-            for enemy in enemies:
+        if game.state == GameState.GAME:
+            if len(enemies) > 0:
+                for enemy in enemies:
 
-                if enemy._type == EnemyType.TRIANGLE:
-                    if frames_passed == 59:
-                        # Triangles fire bullets in three directions (up, left and right)
-                        play_sound(enemy_shoot_snd)
-                        enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.RIGHT))                        
-                        enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.LEFT))                        
-                        enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.UP))
+                    if enemy._type == EnemyType.TRIANGLE:
+                        if frames_passed == 59:
+                            # Triangles fire bullets in three directions (up, left and right)
+                            play_sound(enemy_shoot_snd)
+                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.RIGHT))                        
+                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.LEFT))                        
+                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.UP))
 
-                for bullet in bullets:
-                    if bullet is not None:
+                    for bullet in bullets:
+                        if bullet is not None:
 
-                        if AbstractEntity.entities_collided(bullet, enemy):
-                            play_sound(enemy_hit_snd)
-                            enemy.on_collision(
-                                bullet, increase_seconds_by_five, player.damage)
-                            bullets[bullets.index(bullet)] = None
+                            if AbstractEntity.entities_collided(bullet, enemy):
+                                play_sound(enemy_hit_snd)
+                                enemy.on_collision(
+                                    bullet, increase_seconds_by_five, player.damage)
+                                bullets[bullets.index(bullet)] = None
 
-                if AbstractEntity.entities_collided(player, enemy):
-                    if not player_taken_damage:  # We check if the player has any invisibility frames left
-                        player_taken_damage = True
-                        play_sound(player_hurt_snd)
-                        player.on_collision(enemy, None)
+                    if AbstractEntity.entities_collided(player, enemy):
+                        if not player_taken_damage:  # We check if the player has any invisibility frames left
+                            player_taken_damage = True
+                            play_sound(player_hurt_snd)
+                            player.on_collision(enemy, None)
 
-                enemy.update(delta, player.x, player.y, enemies)
+                    enemy.update(delta, player.x, player.y, enemies)
 
-        enemies = list(filter(lambda e: e.health > 0, enemies))
+            enemies = list(filter(lambda e: e.health > 0, enemies))
 
         if current_map_item.get() is not None and AbstractEntity.entities_collided(current_map_item.get(), player):
             play_sound(_item_pickup_snd)
@@ -262,9 +264,12 @@ def main() -> tp.NoReturn:
                     bullet.update(delta)
 
                     if AbstractEntity.entities_collided(player, bullet):
-                        player.on_collision(bullet, None)
-                        enemy_bullets[enemy_bullets.index(bullet)] = None
 
+                        if not player_taken_damage:  # We check if the player has any invisibility frames left
+                            player_taken_damage = True
+                            play_sound(player_hurt_snd)
+                            player.on_collision(bullet, None)
+                            enemy_bullets[enemy_bullets.index(bullet)] = None
 
         if len(bullets) > 0:
             for bullet in bullets:
@@ -308,11 +313,27 @@ def main() -> tp.NoReturn:
         if current_map_item.get() is not None:
             current_map_item.get().draw()
 
-        draw_texture(_PLAYER_GLOW, player.x - 34, player.y - 34, RAYWHITE)
-        player.draw()
+        if game.state == GameState.GAME:
+            draw_texture(_PLAYER_GLOW, player.x - 34, player.y - 34, RAYWHITE)
+            player.draw()
 
         moving_rectangle.draw()
         ui.draw()
+
+        if game.state == GameState.GAME_OVER:
+            game_over_text_length = measure_text("GAME OVER", 32)
+            replay_text_length = measure_text("Press 'r' to try again!", 16) 
+            draw_text("GAME OVER", int(1024/2) - int(game_over_text_length/2), int(576/2), 32, RAYWHITE)
+            draw_text("Press 'r' to try again!", int(1024/2) - int(replay_text_length/2), int(576/2) + 50, 16, RAYWHITE)
+
+            enemies = []
+
+            if is_key_pressed(KEY_R):
+                game.current_scene = Scene.load_random_map()
+                game.state = GameState.GAME
+                seconds_left.set(60)
+                print(game.state)
+                player._hp = 6
 
         if game.state == GameState.MENU:
             draw_texture(_LOGO, int(1024/2) - 170, 25, RAYWHITE)
