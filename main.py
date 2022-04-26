@@ -47,6 +47,9 @@ def main() -> tp.NoReturn:
     player_hurt_wav = load_wave('./sounds/player_hurt.wav')
     player_hurt_snd = load_sound_from_wave(player_hurt_wav)
 
+    lose_wav = load_wave('./sounds/lose.wav')
+    lose_snd = load_sound_from_wave(lose_wav)
+
     _item_pickup_wav = load_wave('./sounds/item.wav')
     _item_pickup_snd = load_sound_from_wave(_item_pickup_wav)
 
@@ -115,8 +118,13 @@ def main() -> tp.NoReturn:
     increase_seconds_by_five = partial(increase_seconds, 5)
     increase_seconds_by_ten = partial(increase_seconds, 10)
 
+    LOSE_SOUND_PLAYED_ONCE = False
+
     while not window_should_close():
         if player._hp <= 0:
+            if not LOSE_SOUND_PLAYED_ONCE:
+                play_sound(lose_snd)
+                LOSE_SOUND_PLAYED_ONCE = True
             game.state = GameState.GAME_OVER
 
         frames_passed += 1
@@ -329,11 +337,13 @@ def main() -> tp.NoReturn:
             enemies = []
 
             if is_key_pressed(KEY_R):
+                # Reset the game
                 game.current_scene = Scene.load_random_map()
                 game.state = GameState.GAME
                 seconds_left.set(60)
-                print(game.state)
+                frames_passed = 0
                 player._hp = 6
+                LOSE_SOUND_PLAYED_ONCE = False
 
         if game.state == GameState.MENU:
             draw_texture(_LOGO, int(1024/2) - 170, 25, RAYWHITE)
