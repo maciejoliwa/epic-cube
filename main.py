@@ -66,6 +66,14 @@ def main() -> tp.NoReturn:
     ]
 
     current_map_item = Reference(None)  # Item currently on the map
+
+    def randomize_enemy_type() -> EnemyType:
+        r_number = randint(1, 20)
+
+        if r_number > 1 and r_number < 10:
+            return EnemyType.CIRCLE
+        else:
+            return EnemyType.TRIANGLE
     
     def get_random_item():
         r_number = randint(0, 50)
@@ -187,7 +195,7 @@ def main() -> tp.NoReturn:
                 if not all_enemies_spawned.get():
                     if frames_passed == 59:
                         enemies_to_spawn.set(enemies_to_spawn.get() - 1)
-                        enemies.append(Enemy(tile.x, tile.y, EnemyType.TRIANGLE, 1))
+                        enemies.append(Enemy(tile.x, tile.y, randomize_enemy_type(), 1))
 
                         if enemies_to_spawn.get() == 0:
                             all_enemies_spawned.set(True)
