@@ -1,5 +1,6 @@
 from .entity import AbstractEntity, _ENTITY_SIZE
 from .enemy import Enemy, EnemyType
+from .enemy_bullet import EnemyBullet
 from scene import Tile
 from pyray import is_key_down, KEY_A, KEY_D, KEY_W, KEY_S, draw_rectangle, GREEN
 import typing as tp
@@ -44,3 +45,5 @@ class Player(AbstractEntity):
     def on_collision(self, other: tp.Any, callback: tp.Callable):
         if isinstance(other, Enemy):
             self._hp -= other.damage
+        if isinstance(other, EnemyBullet):
+            self._hp -= 1

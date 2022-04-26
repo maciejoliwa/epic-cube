@@ -3,7 +3,7 @@ import typing as tp
 from pyray import *
 
 from functools import partial
-from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity
+from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity, EnemyBullet
 from scene import Scene
 from game import Game, GameState
 from ref import Reference
@@ -54,6 +54,7 @@ def main() -> tp.NoReturn:
     ui = UIManager(player._hp, _HEART_TEXTURE, _HALF_HEART_TEXTURE)
 
     bullets: tp.List[Bullet] = []
+    enemy_bullets: tp.List[EnemyBullet] = []
     enemies: tp.List[Enemy] = []
 
     # From there we shall pick items to put on the map
@@ -161,6 +162,13 @@ def main() -> tp.NoReturn:
         if len(enemies) > 0:
             for enemy in enemies:
 
+                if enemy._type == EnemyType.TRIANGLE:
+                    if frames_passed == 59:
+                        # Triangles fire bullets in three directions (up, left and right)
+                        enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.RIGHT))                        
+                        enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.LEFT))                        
+                        enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.UP))
+
                 for bullet in bullets:
                     if bullet is not None:
 
@@ -229,6 +237,31 @@ def main() -> tp.NoReturn:
                         game.current_scene = Scene.load_random_map()
                         spawn_enemies()
 
+        if len(enemy_bullets) > 0:
+            for bullet in enemy_bullets:
+
+                if bullet is not None:
+
+                    # Remove bullets out of bounds
+                    if bullet.x > 1032:
+                        enemy_bullets[enemy_bullets.index(bullet)] = None
+
+                    if bullet.x < -8:
+                        enemy_bullets[enemy_bullets.index(bullet)] = None
+
+                    if bullet.y > 584:
+                        enemy_bullets[enemy_bullets.index(bullet)] = None
+
+                    if bullet.y < -8:
+                        enemy_bullets[enemy_bullets.index(bullet)] = None
+
+                    bullet.update(delta)
+
+                    if AbstractEntity.entities_collided(player, bullet):
+                        player.on_collision(bullet, None)
+                        enemy_bullets[enemy_bullets.index(bullet)] = None
+
+
         if len(bullets) > 0:
             for bullet in bullets:
 
@@ -260,6 +293,11 @@ def main() -> tp.NoReturn:
 
         if len(bullets) > 0:
             for bullet in bullets:
+                if bullet is not None:
+                    bullet.draw()
+
+        if len(enemy_bullets) > 0:
+            for bullet in enemy_bullets:
                 if bullet is not None:
                     bullet.draw()
 
