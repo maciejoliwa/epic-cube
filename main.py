@@ -259,7 +259,7 @@ def main() -> tp.NoReturn:
                     for bullet in bullets:
                         if bullet is not None:
 
-                            if AbstractEntity.entities_collided(bullet, enemy):
+                            if AbstractEntity.entities_collided(bullet, enemy, 16, 16):
                                 play_sound(enemy_hit_snd)
                                 enemy.on_collision(
                                     bullet, increase_seconds_by_five, player.damage)
@@ -274,7 +274,7 @@ def main() -> tp.NoReturn:
                                     if r_number > 10:
                                         hearts.append(HeartDrop(enemy.x, enemy.y, _HEART_DROP_TEXTURE))
 
-                    if AbstractEntity.entities_collided(player, enemy):
+                    if AbstractEntity.entities_collided(player, enemy, 32, 32):
                         if not player_taken_damage:  # We check if the player has any invisibility frames left
                             player_taken_damage = True
                             flash_frames_passed = 0
@@ -285,7 +285,7 @@ def main() -> tp.NoReturn:
 
             enemies = list(filter(lambda e: e.health > 0, enemies))
 
-        if current_map_item.get() is not None and AbstractEntity.entities_collided(current_map_item.get(), player):
+        if current_map_item.get() is not None and AbstractEntity.entities_collided(current_map_item.get(), player, 16, 16):
             play_sound(_item_pickup_snd)
             current_map_item.get().on_collision(player, increase_seconds_by_ten)
             game.collected_items.append(current_map_item.get())
@@ -306,7 +306,7 @@ def main() -> tp.NoReturn:
                         if enemies_to_spawn.get() == 0:
                             all_enemies_spawned.set(True)
 
-            if AbstractEntity.entities_collided(player, tile):
+            if AbstractEntity.entities_collided(player, tile, 32, 32):
                 if tile.name == 'damage':
                     if not player_taken_damage:
                         player_taken_damage = True
@@ -361,7 +361,7 @@ def main() -> tp.NoReturn:
             for heart in hearts:
                 if heart is not None:
 
-                    if AbstractEntity.entities_collided(heart, player):
+                    if AbstractEntity.entities_collided(heart, player, 8, 8):
                         heart.on_collision(player, None)
                         hearts[hearts.index(heart)] = None
                         play_sound(heart_pickup_snd)
@@ -386,7 +386,7 @@ def main() -> tp.NoReturn:
 
                     bullet.update(delta)
 
-                    if AbstractEntity.entities_collided(player, bullet):
+                    if AbstractEntity.entities_collided(player, bullet, 8, 8):
 
                         if not player_taken_damage:  # We check if the player has any invisibility frames left
                             player_taken_damage = True
