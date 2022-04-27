@@ -223,7 +223,7 @@ def main() -> tp.NoReturn:
                 bullets.append(Bullet(player.x, player.y, BulletDirection.DOWN))
                 bullets.append(Bullet(player.x + 32, player.y, BulletDirection.DOWN))
             bullets.append(
-                Bullet(player.x + 16, player.y + 16, BulletDirection.DOWN))
+                Bullet(player.x + 16, player.y, BulletDirection.DOWN))
 
         if is_key_pressed(KEY_UP):
             play_sound(shoot_snd)
@@ -231,7 +231,7 @@ def main() -> tp.NoReturn:
                 bullets.append(Bullet(player.x, player.y, BulletDirection.UP))
                 bullets.append(Bullet(player.x + 32, player.y, BulletDirection.UP))
             bullets.append(
-                Bullet(player.x + 16, player.y + 16, BulletDirection.UP))
+                Bullet(player.x + 16, player.y, BulletDirection.UP))
 
         player.update(delta)
         moving_rectangle.update(delta)
