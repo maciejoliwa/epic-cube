@@ -15,15 +15,15 @@ class UIManager:
         self.rooms = rooms
 
     def draw(self):
-        x = 25
-        y = 25
+        x = 10
+        y = 10
 
         for i in range(self.player_hp):
             draw_texture(self.heart, x, y, RAYWHITE)
             if i == 10 or i == 21:
-                x = 25
+                x = 0
                 y += 20
             else:
-                x += 20
+                x += 30
             
         draw_text(f"Rooms Cleared: {self.rooms}", 800, 35, 24, BLACK)
