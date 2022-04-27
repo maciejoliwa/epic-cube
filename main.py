@@ -28,6 +28,7 @@ def main() -> tp.NoReturn:
     _VIGNETTE = load_texture('./textures/vignette.png')
     _EXPLOSION = load_texture('./textures/boom.png')
     _HEART_DROP_TEXTURE = load_texture('./textures/heart-drop.png')
+    _CIRLCE_GLOW_TEXTURE = load_texture('./textures/circle-glow.png')
 
     class FlashingText:
         
@@ -441,6 +442,8 @@ def main() -> tp.NoReturn:
 
         if len(enemies) > 0:
             for enemy in enemies:
+                if enemy._type == EnemyType.CIRCLE:
+                    draw_texture(_CIRLCE_GLOW_TEXTURE, enemy.x - 31, enemy.y - 33, RAYWHITE)
                 enemy.draw()
             
         if len(hearts) > 0:
