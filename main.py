@@ -4,6 +4,8 @@ import typing as tp
 from pyray import *
 
 from functools import partial
+
+from raylib import FLAG_MSAA_4X_HINT
 from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity, EnemyBullet
 from entity.heartdrop import HeartDrop
 from scene import Scene
@@ -15,6 +17,8 @@ from random import randrange, randint
 
 
 def main() -> tp.NoReturn:
+    set_config_flags(FLAG_MSAA_4X_HINT)
+
     init_window(1024, 576, "Epic Cube")
 
     _HEART_TEXTURE = load_texture('./textures/heart.png')
@@ -24,6 +28,26 @@ def main() -> tp.NoReturn:
     _VIGNETTE = load_texture('./textures/vignette.png')
     _EXPLOSION = load_texture('./textures/boom.png')
     _HEART_DROP_TEXTURE = load_texture('./textures/heart-drop.png')
+
+    class FlashingText:
+        
+        text: str = ''
+        frames_showing = 30
+        frames_passed = 0
+        showing = False
+
+        def show(self):
+            text_length = measure_text(self.text, 32)
+            if self.showing:
+                self.frames_passed += 1
+                if self.frames_passed < self.frames_showing:
+                    draw_text(self.text, int(1024/2) - int(text_length/2), int(576/2), 32, BLACK)
+                else:
+                    self.frames_passed = 0
+                    self.showing = False
+                    
+        def update_text(self, text: str):
+            self.text = text
 
     class Explosion:
 
@@ -116,9 +140,10 @@ def main() -> tp.NoReturn:
         Item("Black", int(1024/2) - 16, int(576/2) - 16, 'items/black.png'),]
 
     # From there we shall pick items to put on the map
+    # We perform a copying on each element to not remove items from the original array by the reference
     items: tp.List[Item] = [copy(i) for i in ALL_GAME_ITEMS]
 
-    current_map_item = Reference(None)  # Item currently on the map
+    current_map_item = Reference(None)  # Item currently visible on the map
 
     def randomize_enemy_type() -> EnemyType:
         r_number = randint(1, 20)
@@ -140,13 +165,11 @@ def main() -> tp.NoReturn:
 
     player_taken_damage = False
 
-    # If there are 0 seconds left, the game ends (very sad)
-    seconds_left = Reference(60)
     invisibility_frames = 15
     flash_frames = 5
     flash_frames_passed = 5
     invisibility_frames_passed = 0
-    frames_passed = 0  # We use that for the funny timer, every 60 frames_passed we decrease one second from the timer
+    frames_passed = 0  # We use that for the funny timer
 
     enemies_to_spawn = Reference(5)
     all_enemies_spawned = Reference(False)
@@ -161,8 +184,7 @@ def main() -> tp.NoReturn:
         enemies_to_spawn.set(r_number)
 
     LOSE_SOUND_PLAYED_ONCE = False
-
-    BOSS = Enemy(100, 100, EnemyType.TRIANGLE_BOSS, 2)
+    TEXT_SHOWING_OBJECT = FlashingText()
 
     while not window_should_close():
         if player._hp <= 0:
@@ -240,9 +262,9 @@ def main() -> tp.NoReturn:
                         if frames_passed == 59:
                             # Triangles fire bullets in three directions (up, left and right)
                             play_sound(enemy_shoot_snd)
-                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.RIGHT))                        
-                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.LEFT))                        
-                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 16, BulletDirection.UP))
+                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 4, BulletDirection.RIGHT))                        
+                            enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 4, BulletDirection.LEFT))                        
+                            enemy_bullets.append(EnemyBullet(enemy.x, enemy.y + 8, BulletDirection.UP))
 
                     for bullet in bullets:
                         if bullet is not None:
@@ -273,10 +295,18 @@ def main() -> tp.NoReturn:
 
             enemies = list(filter(lambda e: e.health > 0, enemies))
 
-        if current_map_item.get() is not None and AbstractEntity.entities_collided(current_map_item.get(), player, 16, 16):
+        if current_map_item.get() is not None and AbstractEntity.entities_collided(current_map_item.get(), player, 32, 32):
             play_sound(_item_pickup_snd)
             current_map_item.get().on_collision(player, None)
             game.collected_items.append(current_map_item.get())
+
+            if current_map_item.get().name == 'Butt Plug':
+                TEXT_SHOWING_OBJECT.update_text('Triple Shot!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == 'Mugiwara':
+                TEXT_SHOWING_OBJECT.update_text('Speed Up + Health Up!')
+                TEXT_SHOWING_OBJECT.showing = True
 
             # Make sure you cannot get the same item twice
             items = list(filter(lambda i: i != current_map_item.get(), items))
@@ -374,7 +404,7 @@ def main() -> tp.NoReturn:
 
                     bullet.update(delta)
 
-                    if AbstractEntity.entities_collided(player, bullet, 8, 8):
+                    if AbstractEntity.entities_collided(player, bullet, 32, 32):
 
                         if not player_taken_damage:  # We check if the player has any invisibility frames left
                             player_taken_damage = True
@@ -433,6 +463,8 @@ def main() -> tp.NoReturn:
                 if explosion is not None:
                     explosion.draw()
 
+        TEXT_SHOWING_OBJECT.show()
+
         if current_map_item.get() is not None:
             current_map_item.get().draw()
 
@@ -461,7 +493,6 @@ def main() -> tp.NoReturn:
                 # Reset the game
                 game.current_scene = Scene.load_random_map()
                 game.state = GameState.GAME
-                seconds_left.set(60)
                 frames_passed = 0
                 player.reset_stats()
                 items = []
