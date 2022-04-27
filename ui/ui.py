@@ -21,7 +21,7 @@ class UIManager:
         for i in range(self.player_hp):
             draw_texture(self.heart, x, y, RAYWHITE)
             if i == 10 or i == 21:
-                x = 0
+                x = 10
                 y += 20
             else:
                 x += 30
