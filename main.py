@@ -134,11 +134,15 @@ def main() -> tp.NoReturn:
     explosions: tp.List[Explosion] = []
     hearts: tp.List[HeartDrop] = []
 
-    ALL_GAME_ITEMS = [Item("Ukulele", int(1024/2) - 16, int(576/2) - 16, 'items/ukulele.png'),
-        Item("Straw Hat", int(1024/2) - 16,
-             int(576/2) - 16, 'items/mugiwara.png'),
+    ALL_GAME_ITEMS = [
+        Item("Ukulele", int(1024/2) - 16, int(576/2) - 16, 'items/ukulele.png'),
+        Item("Straw Hat", int(1024/2) - 16,int(576/2) - 16, 'items/mugiwara.png'),
         Item("Butt Plug", int(1024/2) - 16, int(576/2) - 16, 'items/plug.png'),
-        Item("Black", int(1024/2) - 16, int(576/2) - 16, 'items/black.png'),]
+        Item("Black", int(1024/2) - 16, int(576/2) - 16, 'items/black.png'),
+        Item("Fox's Tail", int(1024/2) - 16, int(576/2) - 16, 'items/fox-tail.png'),
+        Item("Fox's Head", int(1024/2) - 16, int(576/2) - 16, 'items/fox-head.png'),
+        Item("Fox's Leg", int(1024/2) - 16, int(576/2) - 16, 'items/fox-leg.png'),
+        ]
 
     # From there we shall pick items to put on the map
     # We perform a copying on each element to not remove items from the original array by the reference
@@ -315,6 +319,18 @@ def main() -> tp.NoReturn:
 
             if current_map_item.get().name == 'Ukulele':
                 TEXT_SHOWING_OBJECT.update_text('Health Up + Damage Up!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == "Fox's Head":
+                TEXT_SHOWING_OBJECT.update_text('Fox\'s Head...???')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == "Fox's Leg":
+                TEXT_SHOWING_OBJECT.update_text('Fox\'s Leg...???')
+                TEXT_SHOWING_OBJECT.showing = True
+            
+            if current_map_item.get().name == "Fox's Tail":
+                TEXT_SHOWING_OBJECT.update_text('Fox\'s Tail...???')
                 TEXT_SHOWING_OBJECT.showing = True
 
             # Make sure you cannot get the same item twice
