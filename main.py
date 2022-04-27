@@ -33,7 +33,7 @@ def main() -> tp.NoReturn:
     class FlashingText:
         
         text: str = ''
-        frames_showing = 30
+        frames_showing = 180
         frames_passed = 0
         showing = False
 
@@ -305,8 +305,16 @@ def main() -> tp.NoReturn:
                 TEXT_SHOWING_OBJECT.update_text('Triple Shot!')
                 TEXT_SHOWING_OBJECT.showing = True
 
-            if current_map_item.get().name == 'Mugiwara':
+            if current_map_item.get().name == 'Straw Hat':
                 TEXT_SHOWING_OBJECT.update_text('Speed Up + Health Up!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == 'Black':
+                TEXT_SHOWING_OBJECT.update_text('Speed Up + Health Down!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == 'Ukulele':
+                TEXT_SHOWING_OBJECT.update_text('Health Up + Damage Up!')
                 TEXT_SHOWING_OBJECT.showing = True
 
             # Make sure you cannot get the same item twice
@@ -466,7 +474,6 @@ def main() -> tp.NoReturn:
                 if explosion is not None:
                     explosion.draw()
 
-        TEXT_SHOWING_OBJECT.show()
 
         if current_map_item.get() is not None:
             current_map_item.get().draw()
@@ -475,6 +482,7 @@ def main() -> tp.NoReturn:
             draw_texture(_PLAYER_GLOW, player.x - 34, player.y - 34, RAYWHITE)
             player.draw()
 
+        TEXT_SHOWING_OBJECT.show()
         moving_rectangle.draw()
 
         draw_texture(_VIGNETTE, 0, 0, RAYWHITE)

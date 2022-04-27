@@ -27,18 +27,19 @@ class Item(AbstractEntity):
             self.x = -100
             self.y = -100
 
-            if self.name == "A Rock":
-                other.damage += 2
+            if self.name == "Butt Plug":
+                pass
             
             if self.name == 'Ukulele':
                 other._hp += 2
+                other.damage + 2
             
             if self.name == 'Black':
-                other._hp += 1
+                other._hp -= 1
+                other.speed += 50.0
 
             if self.name == 'Straw Hat':
                 other._hp += 1
-                other.damage += 1
                 other.speed += 100.0
 
     def update(self, delta: float, *args) -> tp.NoReturn:
