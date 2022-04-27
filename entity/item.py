@@ -27,8 +27,6 @@ class Item(AbstractEntity):
             self.x = -100
             self.y = -100
 
-            callback()
-
             if self.name == "A Rock":
                 other.damage += 2
             

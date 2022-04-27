@@ -160,13 +160,6 @@ def main() -> tp.NoReturn:
         all_enemies_spawned.set(False)
         enemies_to_spawn.set(r_number)
 
-    def increase_seconds(s: int) -> tp.NoReturn:
-        play_sound(time_up_snd)
-        seconds_left.set(seconds_left.get() + s)
-
-    increase_seconds_by_five = partial(increase_seconds, 5)
-    increase_seconds_by_ten = partial(increase_seconds, 10)
-
     LOSE_SOUND_PLAYED_ONCE = False
 
     BOSS = Enemy(100, 100, EnemyType.TRIANGLE_BOSS, 2)
@@ -188,12 +181,7 @@ def main() -> tp.NoReturn:
                 player_taken_damage = False
                 invisibility_frames_passed = 0
 
-        if frames_passed == 60 and game.state == GameState.GAME:
-            play_sound(time_pass_snd)
-
-            if seconds_left.get() > 0:
-                seconds_left.set(seconds_left.get() - 1)
-
+        if frames_passed == 60:
             frames_passed = 0
 
         update_music_stream(pandora)
@@ -262,7 +250,7 @@ def main() -> tp.NoReturn:
                             if AbstractEntity.entities_collided(bullet, enemy, 16, 16):
                                 play_sound(enemy_hit_snd)
                                 enemy.on_collision(
-                                    bullet, increase_seconds_by_five, player.damage)
+                                    bullet, None, player.damage)
                                 bullets[bullets.index(bullet)] = None
 
                                 if enemy.health <= 0:
@@ -287,13 +275,13 @@ def main() -> tp.NoReturn:
 
         if current_map_item.get() is not None and AbstractEntity.entities_collided(current_map_item.get(), player, 16, 16):
             play_sound(_item_pickup_snd)
-            current_map_item.get().on_collision(player, increase_seconds_by_ten)
+            current_map_item.get().on_collision(player, None)
             game.collected_items.append(current_map_item.get())
 
             # Make sure you cannot get the same item twice
             items = list(filter(lambda i: i != current_map_item.get(), items))
 
-        ui.update(player._hp, seconds_left, game.rooms_finished)
+        ui.update(player._hp, game.rooms_finished)
 
         for tile in game.current_scene.tiles:
 
