@@ -5,6 +5,7 @@ from pyray import *
 
 from functools import partial
 from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity, EnemyBullet
+from entity.heartdrop import HeartDrop
 from scene import Scene
 from game import Game, GameState
 from ref import Reference
@@ -22,6 +23,7 @@ def main() -> tp.NoReturn:
     _LOGO = load_texture('./textures/logo.png')
     _VIGNETTE = load_texture('./textures/vignette.png')
     _EXPLOSION = load_texture('./textures/boom.png')
+    _HEART_DROP_TEXTURE = load_texture('./textures/heart-drop.png')
 
     class Explosion:
 
@@ -89,6 +91,9 @@ def main() -> tp.NoReturn:
     lose_wav = load_wave('./sounds/lose.wav')
     lose_snd = load_sound_from_wave(lose_wav)
 
+    heart_pickup_wav = load_wave('./sounds/heartpickup.wav')
+    heart_pickup_snd = load_sound_from_wave(heart_pickup_wav)
+
     _item_pickup_wav = load_wave('./sounds/item.wav')
     _item_pickup_snd = load_sound_from_wave(_item_pickup_wav)
 
@@ -102,6 +107,7 @@ def main() -> tp.NoReturn:
     enemy_bullets: tp.List[EnemyBullet] = []
     enemies: tp.List[Enemy] = []
     explosions: tp.List[Explosion] = []
+    hearts: tp.List[HeartDrop] = []
 
     ALL_GAME_ITEMS = [Item("Ukulele", int(1024/2) - 16, int(576/2) - 16, 'items/ukulele.png'),
         Item("Straw Hat", int(1024/2) - 16,
@@ -162,6 +168,8 @@ def main() -> tp.NoReturn:
     increase_seconds_by_ten = partial(increase_seconds, 10)
 
     LOSE_SOUND_PLAYED_ONCE = False
+
+    BOSS = Enemy(100, 100, EnemyType.TRIANGLE_BOSS, 2)
 
     while not window_should_close():
         if player._hp <= 0:
@@ -260,6 +268,11 @@ def main() -> tp.NoReturn:
                                 if enemy.health <= 0:
                                     play_sound(boom_snd)
                                     explosions.append(Explosion(enemy.x - 64, enemy.y - 64))
+                                    # Spawn heart if rng hits right
+
+                                    r_number = randint(1, 20)
+                                    if r_number > 10:
+                                        hearts.append(HeartDrop(enemy.x, enemy.y, _HEART_DROP_TEXTURE))
 
                     if AbstractEntity.entities_collided(player, enemy):
                         if not player_taken_damage:  # We check if the player has any invisibility frames left
@@ -280,7 +293,7 @@ def main() -> tp.NoReturn:
             # Make sure you cannot get the same item twice
             items = list(filter(lambda i: i != current_map_item.get(), items))
 
-        ui.update(player._hp, seconds_left)
+        ui.update(player._hp, seconds_left, game.rooms_finished)
 
         for tile in game.current_scene.tiles:
 
@@ -303,15 +316,23 @@ def main() -> tp.NoReturn:
 
                 if len(enemies) == 0:  # Make sure there are no enemies left in the current room
                     if tile.name == 'teleport_up':
+                        if game.rooms_finished == 20:
+                            enemies.append(Enemy(int(1024/2), int(572/2), EnemyType.TRIANGLE_BOSS, 5))
+                        
                         get_random_item()
                         moving_rectangle.move(MovementDirection.TO_BOTTOM)
                         player.y = 540
                         game.current_scene = Scene.load_random_map()
+                        hearts = []
                         spawn_enemies()
                         bullets = []
                         enemy_bullets = []
+                        game.rooms_finished += 1
 
                     elif tile.name == 'teleport_right':
+                        if game.rooms_finished == 20:
+                            enemies.append(Enemy(int(1024/2), int(572/2), EnemyType.TRIANGLE_BOSS, 5))
+                        
                         get_random_item()
                         moving_rectangle.move(MovementDirection.TO_LEFT)
                         player.x = 32
@@ -319,15 +340,31 @@ def main() -> tp.NoReturn:
                         spawn_enemies()
                         bullets = []
                         enemy_bullets = []
+                        hearts = []
+                        game.rooms_finished += 1
 
                     elif tile.name == 'teleport_left':
+                        if game.rooms_finished == 20:
+                            enemies.append(Enemy(int(1024/2), int(572/2), EnemyType.TRIANGLE_BOSS, 5))
+                        
                         get_random_item()
                         moving_rectangle.move(MovementDirection.TO_RIGHT)
                         player.x = 960
                         game.current_scene = Scene.load_random_map()
                         spawn_enemies()
                         bullets = []
+                        hearts = []
                         enemy_bullets = []
+                        game.rooms_finished += 1
+
+        if len(hearts) > 0:
+            for heart in hearts:
+                if heart is not None:
+
+                    if AbstractEntity.entities_collided(heart, player):
+                        heart.on_collision(player, None)
+                        hearts[hearts.index(heart)] = None
+                        play_sound(heart_pickup_snd)
 
         if len(enemy_bullets) > 0:
             for bullet in enemy_bullets:
@@ -387,6 +424,11 @@ def main() -> tp.NoReturn:
         if len(enemies) > 0:
             for enemy in enemies:
                 enemy.draw()
+            
+        if len(hearts) > 0:
+            for heart in hearts:
+                if heart is not None:
+                    heart.draw()
 
         if len(bullets) > 0:
             for bullet in bullets:
@@ -433,11 +475,13 @@ def main() -> tp.NoReturn:
                 game.state = GameState.GAME
                 seconds_left.set(60)
                 frames_passed = 0
-                player._hp = 6
+                player.reset_stats()
                 items = []
                 game.collected_items = []
                 items = ALL_GAME_ITEMS.copy()
+                hearts = []
                 LOSE_SOUND_PLAYED_ONCE = False
+                game.rooms_finished = 0
 
         if game.state == GameState.MENU:
             draw_texture(_LOGO, int(1024/2) - 170, 25, RAYWHITE)

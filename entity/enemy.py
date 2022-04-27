@@ -10,12 +10,14 @@ class EnemyType(IntEnum):
 
     TRIANGLE = 0
     CIRCLE = 1
+    TRIANGLE_BOSS = 2
 
 
 class Enemy(AbstractEntity):
 
     _CIRCLE_SPEED = 200.0
     _TRIANGLE_SPEED = 100.0
+    _TRIANGLE_BOSS_SPEED = 0.0
 
     _type: EnemyType
 
@@ -33,12 +35,18 @@ class Enemy(AbstractEntity):
             self.health = 40
             self.speed = self._TRIANGLE_SPEED
 
+        if self._type == EnemyType.TRIANGLE_BOSS:
+            self.health = 200
+            self.speed = self._TRIANGLE_BOSS_SPEED
+
     def draw(self):
         if self.health > 0:
             if self._type == EnemyType.CIRCLE:
                 draw_circle(self.x, self.y, 16, RED)
             if self._type == EnemyType.TRIANGLE:
                 draw_triangle(Vector2(self.x, self.y), Vector2(self.x - 16, self.y + 32), Vector2(self.x + 16, self.y + 32), PURPLE)
+            if self._type == EnemyType.TRIANGLE_BOSS:
+                draw_triangle(Vector2(self.x, self.y), Vector2(self.x - 96, self.y + 144), Vector2(self.x + 96, self.y + 144), RED)
 
     def update(self, delta, *args):
         player_x = args[0]
@@ -47,13 +55,13 @@ class Enemy(AbstractEntity):
     
         # Cirlces will follow the player
         if self._type == EnemyType.CIRCLE or self._type == EnemyType.TRIANGLE:
-            if self.x > player_x:
+            if self.x > player_x + 16:
                 self.x -= int(self.speed * delta)
-            if self.x < player_x:
+            if self.x < player_x + 16:
                 self.x += int(self.speed * delta)
-            if self.y > player_y:
+            if self.y > player_y + 16:
                 self.y -= int(self.speed * delta)
-            if self.y < player_y:
+            if self.y < player_y + 16:
                 self.y += int(self.speed * delta)
 
         if self.health <= 0:

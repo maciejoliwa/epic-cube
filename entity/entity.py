@@ -11,7 +11,13 @@ class AbstractEntity(ABC):
         self.y = init_y
 
     @staticmethod
-    def entities_collided(e1: 'AbstractEntity', e2: 'AbstractEntity') -> bool:
+    def entities_collided(e1: 'AbstractEntity', e2: 'AbstractEntity', *args) -> bool:
+        if args[0] and args[1]:
+            return check_collision_recs(
+                Rectangle(e1.x, e1.y, args[0], args[1]),
+                Rectangle(e2.x, e2.y, _ENTITY_SIZE, _ENTITY_SIZE),        
+            )
+
         return check_collision_recs(
             Rectangle(e1.x, e1.y, _ENTITY_SIZE, _ENTITY_SIZE),
             Rectangle(e2.x, e2.y, _ENTITY_SIZE, _ENTITY_SIZE),

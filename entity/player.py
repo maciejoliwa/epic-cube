@@ -16,6 +16,9 @@ class Player(AbstractEntity):
         self.speed = 450.0
 
     def update(self, delta: float) -> tp.NoReturn:
+        if self._hp <= 0:
+            return
+            
         calculated_speed = int(delta * self.speed)
 
         # Those ifs checking coords are to make sure the player cannot leave outside the window
@@ -47,3 +50,8 @@ class Player(AbstractEntity):
             self._hp -= other.damage
         if isinstance(other, EnemyBullet):
             self._hp -= 1
+
+    def reset_stats(self) -> tp.NoReturn:
+        self.damage = 5
+        self._hp = 6
+        self.speed = 450.0
