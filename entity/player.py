@@ -18,6 +18,9 @@ class Player(AbstractEntity):
     def update(self, delta: float) -> tp.NoReturn:
         if self._hp <= 0:
             return
+
+        if self._hp > 22:
+            self._hp = 22
             
         calculated_speed = int(delta * self.speed)
 
