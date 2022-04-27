@@ -404,7 +404,7 @@ def main() -> tp.NoReturn:
 
                     bullet.update(delta)
 
-                    if AbstractEntity.entities_collided(player, bullet, 32, 32):
+                    if AbstractEntity.entities_collided(bullet, player, 8, 8):
 
                         if not player_taken_damage:  # We check if the player has any invisibility frames left
                             player_taken_damage = True
