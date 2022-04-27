@@ -29,6 +29,7 @@ def main() -> tp.NoReturn:
     _EXPLOSION = load_texture('./textures/boom.png')
     _HEART_DROP_TEXTURE = load_texture('./textures/heart-drop.png')
     _CIRLCE_GLOW_TEXTURE = load_texture('./textures/circle-glow.png')
+    _FOX_EARS = load_texture('./textures/fox-ears.png')
 
     class FlashingText:
         
@@ -497,6 +498,10 @@ def main() -> tp.NoReturn:
         if game.state == GameState.GAME:
             draw_texture(_PLAYER_GLOW, player.x - 34, player.y - 34, RAYWHITE)
             player.draw()
+
+            if player_has_item("Fox's Leg") and player_has_item("Fox's Head") and player_has_item("Fox's Tail"):  # Add fox ears to the player if he has collected all fox's items
+                draw_rectangle(player.x, player.y, 32, 32, Color(255, 46, 0, 255))
+                draw_texture(_FOX_EARS, player.x, player.y - 9, RAYWHITE)
 
         TEXT_SHOWING_OBJECT.show()
         moving_rectangle.draw()
