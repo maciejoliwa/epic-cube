@@ -152,10 +152,12 @@ def main() -> tp.NoReturn:
     current_map_item = Reference(None)  # Item currently visible on the map
 
     def randomize_enemy_type() -> EnemyType:
-        r_number = randint(1, 20)
+        r_number = randint(1, 30)
 
         if r_number > 1 and r_number < 10:
             return EnemyType.CIRCLE
+        elif r_number > 10 and r_number < 15:
+            return EnemyType.ESCAPING_TRIANGLE
         else:
             return EnemyType.TRIANGLE
     
@@ -271,6 +273,23 @@ def main() -> tp.NoReturn:
                             enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 4, BulletDirection.RIGHT))                        
                             enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 4, BulletDirection.LEFT))                        
                             enemy_bullets.append(EnemyBullet(enemy.x, enemy.y + 8, BulletDirection.UP))
+
+                    if enemy._type == EnemyType.ESCAPING_TRIANGLE:
+                        if frames_passed == 20:
+                            # Triangles fire bullets in three directions (up, left and right)
+                            play_sound(enemy_shoot_snd)
+
+                            if player.x < enemy.x:
+                                enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 4, BulletDirection.LEFT))                        
+                            
+                            if player.y < enemy.y:
+                                enemy_bullets.append(EnemyBullet(enemy.x, enemy.y + 8, BulletDirection.UP))
+
+                            if player.y > enemy.y:
+                                enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 4, BulletDirection.DOWN))
+
+                            if player.x > enemy.x:
+                                enemy_bullets.append(EnemyBullet(enemy.x + 16, enemy.y + 4, BulletDirection.RIGHT))                       
 
                     for bullet in bullets:
                         if bullet is not None:
