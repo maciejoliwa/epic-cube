@@ -142,6 +142,10 @@ def main() -> tp.NoReturn:
         Item("Fox's Tail", int(1024/2) - 16, int(576/2) - 16, 'items/fox-tail.png'),
         Item("Fox's Head", int(1024/2) - 16, int(576/2) - 16, 'items/fox-head.png'),
         Item("Fox's Leg", int(1024/2) - 16, int(576/2) - 16, 'items/fox-leg.png'),
+        Item("C Programming Language", int(1024/2) - 16, int(576/2) - 16, 'items/c.png'),
+        Item("JavaScript The Good Parts", int(1024/2) - 16, int(576/2) - 16, 'items/js.png'),
+        Item("Skirt", int(1024/2) - 16, int(576/2) - 16, 'items/skirt.png'),
+        Item("Vodka", int(1024/2) - 16, int(576/2) - 16, 'items/vodka.png'),
         ]
 
     # From there we shall pick items to put on the map
@@ -354,6 +358,22 @@ def main() -> tp.NoReturn:
 
             if current_map_item.get().name == 'Ukulele':
                 TEXT_SHOWING_OBJECT.update_text('Health Up + Damage Up!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == 'C Programming Language':
+                TEXT_SHOWING_OBJECT.update_text('Health Up + Speed Up + Damage Up!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == 'JavaScript The Good Parts':
+                TEXT_SHOWING_OBJECT.update_text('Small Health Up + Speed Down + Small Damage Up!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == 'Skirt':
+                TEXT_SHOWING_OBJECT.update_text('Health up + Speed up!')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == 'Vodka':
+                TEXT_SHOWING_OBJECT.update_text('Health Down + Speed Down + Damage Up!')
                 TEXT_SHOWING_OBJECT.showing = True
 
             if current_map_item.get().name == "Fox's Head":

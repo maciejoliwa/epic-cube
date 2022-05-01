@@ -40,7 +40,27 @@ class Item(AbstractEntity):
 
             if self.name == 'Straw Hat':
                 other._hp += 1
-                other.speed += 100.0
+                other.speed += 50.0
+
+            if self.name == 'C Programming Language':
+                other._hp += 1
+                other.speed += 75.0
+                other.damage += 5
+
+            if self.name == 'JavaScript The Good Parts':
+                other._hp += 1
+                other.speed -= 25.0
+                other.damage += 1
+
+            if self.name == 'Skirt':
+                other._hp -= 5
+                other.speed += 50.0
+
+            if self.name == 'Vodka':
+                other._hp -= int(other._hp/2)
+                other.damage += 5
+                other.speed -= 50.0
+
 
     def update(self, delta: float, *args) -> tp.NoReturn:
         return super().update(delta, *args)
