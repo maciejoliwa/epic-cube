@@ -16,7 +16,7 @@ class EnemyType(IntEnum):
 
 class Enemy(AbstractEntity):
 
-    _CIRCLE_SPEED = 200.0
+    _CIRCLE_SPEED = 120.0
     _TRIANGLE_SPEED = 100.0
     _TRIANGLE_BOSS_SPEED = 0.0
 

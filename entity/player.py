@@ -13,7 +13,7 @@ class Player(AbstractEntity):
         self.x = init_x
         self.y = init_y
         self.damage = 5
-        self.speed = 450.0
+        self.speed = 250.0
 
     def update(self, delta: float) -> tp.NoReturn:
         if self._hp <= 0:
@@ -57,4 +57,4 @@ class Player(AbstractEntity):
     def reset_stats(self) -> tp.NoReturn:
         self.damage = 5
         self._hp = 6
-        self.speed = 450.0
+        self.speed = 250.0

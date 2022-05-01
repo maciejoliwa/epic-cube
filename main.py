@@ -1,5 +1,4 @@
 from copy import deepcopy, copy
-from multiprocessing.sharedctypes import Value
 import typing as tp
 from pyray import *
 
@@ -8,7 +7,7 @@ from functools import partial
 from raylib import FLAG_MSAA_4X_HINT
 from entity import Player, Bullet, BulletDirection, Enemy, EnemyType, Item, AbstractEntity, EnemyBullet
 from entity.heartdrop import HeartDrop
-from scene import Scene
+from scene import Scene, Tile
 from game import Game, GameState
 from ref import Reference
 from ui import UIManager, MovementDirection, MovingRectangle
@@ -43,7 +42,7 @@ def main() -> tp.NoReturn:
             if self.showing:
                 self.frames_passed += 1
                 if self.frames_passed < self.frames_showing:
-                    draw_text(self.text, int(1024/2) - int(text_length/2), int(576/2), 32, BLACK)
+                    draw_text(self.text, int(1024/2) - int(text_length/2), 45, 32, WHITE)
                 else:
                     self.frames_passed = 0
                     self.showing = False
@@ -194,7 +193,23 @@ def main() -> tp.NoReturn:
     LOSE_SOUND_PLAYED_ONCE = False
     TEXT_SHOWING_OBJECT = FlashingText()
 
+    def update_room_tiles(tile: Tile) -> Tile:
+        if tile.name == 'floor':
+            if game.rooms_finished > 20 and game.rooms_finished < 40:
+                return Tile('floor_past_20', tile.x, tile.y, Color(100, 50, 50, 255))
+        if tile.name == 'wall':
+            if game.rooms_finished > 20 and game.rooms_finished < 40:
+                return Tile('wall_past_20', tile.x, tile.y, Color(70, 40, 40, 255))
+        else:
+                return tile
+
+        return tile
+
+    def update_scene():
+        game.current_scene.tiles = list(map(update_room_tiles, game.current_scene.tiles))
+
     while not window_should_close():
+        
         if player._hp <= 0:
             if not LOSE_SOUND_PLAYED_ONCE:
                 play_sound(lose_snd)
@@ -356,7 +371,7 @@ def main() -> tp.NoReturn:
             # Make sure you cannot get the same item twice
             items = list(filter(lambda i: i != current_map_item.get(), items))
 
-        ui.update(player._hp, game.rooms_finished)
+        ui.update(player._hp, game.rooms_finished, player.damage, player.speed)
 
         for tile in game.current_scene.tiles:
 
@@ -391,6 +406,7 @@ def main() -> tp.NoReturn:
                         bullets = []
                         enemy_bullets = []
                         game.rooms_finished += 1
+                        update_scene()
 
                     elif tile.name == 'teleport_right':
                         if game.rooms_finished == 20:
@@ -405,6 +421,8 @@ def main() -> tp.NoReturn:
                         enemy_bullets = []
                         hearts = []
                         game.rooms_finished += 1
+                        update_scene()
+
 
                     elif tile.name == 'teleport_left':
                         if game.rooms_finished == 20:
@@ -419,6 +437,7 @@ def main() -> tp.NoReturn:
                         hearts = []
                         enemy_bullets = []
                         game.rooms_finished += 1
+                        update_scene()
 
         if len(hearts) > 0:
             for heart in hearts:

@@ -31,8 +31,8 @@ class Item(AbstractEntity):
                 pass
             
             if self.name == 'Ukulele':
-                other._hp += 2
-                other.damage + 2
+                other._hp += 4
+                other.damage += 2
             
             if self.name == 'Black':
                 other._hp -= 1

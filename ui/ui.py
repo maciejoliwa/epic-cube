@@ -10,9 +10,11 @@ class UIManager:
     half_heart: Texture
     rooms: int = 0
 
-    def update(self, player_hp: int, rooms: int):
+    def update(self, player_hp: int, rooms: int, player_dmg: int, player_speed: int):
         self.player_hp = player_hp
         self.rooms = rooms
+        self.player_damage = player_dmg
+        self.player_speed = player_speed
 
     def draw(self):
         x = 10
@@ -26,4 +28,6 @@ class UIManager:
             else:
                 x += 30
             
-        draw_text(f"Rooms Cleared: {self.rooms}", 800, 35, 24, BLACK)
+        draw_text(f"Rooms Cleared: {self.rooms}", 800, 35, 24, WHITE)
+        draw_text(f"Damage: {self.player_damage}", 900, 65, 16, WHITE)
+        draw_text(f"Speed: {self.player_speed}", 900, 95, 16, WHITE)
