@@ -30,6 +30,9 @@ class Item(AbstractEntity):
             if self.name == "Butt Plug":
                 pass
             
+            if self.name == 'Windows':
+                pass
+
             if self.name == 'Ukulele':
                 other._hp += 4
                 other.damage += 2

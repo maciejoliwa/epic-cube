@@ -29,6 +29,7 @@ def main() -> tp.NoReturn:
     _HEART_DROP_TEXTURE = load_texture('./textures/heart-drop.png')
     _CIRLCE_GLOW_TEXTURE = load_texture('./textures/circle-glow.png')
     _FOX_EARS = load_texture('./textures/fox-ears.png')
+    _WINDOWS_UPDATE = load_texture('./textures/update.png')
 
     class FlashingText:
         
@@ -81,6 +82,44 @@ def main() -> tp.NoReturn:
         def draw(self):
             draw_texture_rec(_EXPLOSION, Rectangle(self.texture_x, self.texture_y, 128, 128), Vector2(self.x, self.y), RAYWHITE)
 
+    class WindowsItemEffect:
+        """
+        A class that manages effects of picking up the windows item
+
+        Effects:
+            - Randomly, player's speed will be dropped to 0, making it impossible to move
+            - A big ass windows update screen will be drawn on the top layer of the screen, covering the current room
+            - It will be displayed for at most few seconds, it has to be annoying 
+        """
+
+        currently_displaying: bool = False
+        seconds: int = 0
+        frames = -1
+        frames_to_pass = 0
+
+        def draw(self) -> tp.NoReturn:
+            if self.currently_displaying:
+                draw_texture(_WINDOWS_UPDATE, 0, 0, RAYWHITE)
+
+        def update(self) -> tp.NoReturn:
+            if self.frames == self.frames_to_pass and self.currently_displaying:
+                self.currently_displaying = False
+                self.seconds = 0
+                self.frames = -1
+
+            if self.currently_displaying:
+                self.frames += 1
+    
+            if not player_has_item('Windows'):  # We don't do anything if the player does not have the item
+                return
+
+            if not self.currently_displaying:
+                r_number = randint(0, 10000)  # We get a random number between 0 and 100
+
+                if r_number > 0 and r_number < 20: # If the random number is higher than 0 but lesser than 20, we display the windows update screen
+                    self.seconds = randint(2, 5)  # Number of seconds the screen will be displayed for
+                    self.currently_displaying = True
+                    self.frames_to_pass = self.seconds * 60
 
     init_audio_device()
 
@@ -146,6 +185,7 @@ def main() -> tp.NoReturn:
         Item("JavaScript The Good Parts", int(1024/2) - 16, int(576/2) - 16, 'items/js.png'),
         Item("Skirt", int(1024/2) - 16, int(576/2) - 16, 'items/skirt.png'),
         Item("Vodka", int(1024/2) - 16, int(576/2) - 16, 'items/vodka.png'),
+        Item("Windows", int(1024/2) - 16, int(576/2) - 16, 'items/windows.png'),  # by Patrycja
         ]
 
     # From there we shall pick items to put on the map
@@ -153,6 +193,9 @@ def main() -> tp.NoReturn:
     items: tp.List[Item] = [copy(i) for i in ALL_GAME_ITEMS]
 
     current_map_item = Reference(None)  # Item currently visible on the map
+    current_map_item.set(ALL_GAME_ITEMS[len(ALL_GAME_ITEMS) - 1])
+
+    windows_item = WindowsItemEffect()
 
     def randomize_enemy_type() -> EnemyType:
         r_number = randint(1, 30)
@@ -235,6 +278,8 @@ def main() -> tp.NoReturn:
 
         update_music_stream(pandora)
         delta = get_frame_time()
+
+        windows_item.update()
 
         if is_key_pressed(KEY_RIGHT):
             play_sound(shoot_snd)
@@ -386,6 +431,10 @@ def main() -> tp.NoReturn:
             
             if current_map_item.get().name == "Fox's Tail":
                 TEXT_SHOWING_OBJECT.update_text('Fox\'s Tail...???')
+                TEXT_SHOWING_OBJECT.showing = True
+
+            if current_map_item.get().name == "Windows":
+                TEXT_SHOWING_OBJECT.update_text('Random Freezes...')
                 TEXT_SHOWING_OBJECT.showing = True
 
             # Make sure you cannot get the same item twice
@@ -561,7 +610,6 @@ def main() -> tp.NoReturn:
                 draw_rectangle(player.x, player.y, 32, 32, Color(255, 46, 0, 255))
                 draw_texture(_FOX_EARS, player.x, player.y - 9, RAYWHITE)
 
-        TEXT_SHOWING_OBJECT.show()
         moving_rectangle.draw()
 
         draw_texture(_VIGNETTE, 0, 0, RAYWHITE)
@@ -570,6 +618,9 @@ def main() -> tp.NoReturn:
             draw_rectangle(0, 0, 1024, 576, Color(255, 0, 0, 100))
             flash_frames_passed+=1
         ui.draw()
+        TEXT_SHOWING_OBJECT.show()
+        
+        windows_item.draw()
 
         if game.state == GameState.GAME_OVER:
             game_over_text_length = measure_text("GAME OVER", 32)
