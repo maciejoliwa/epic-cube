@@ -116,8 +116,8 @@ def main() -> tp.NoReturn:
             if not self.currently_displaying:
                 r_number = randint(0, 10000)  # We get a random number between 0 and 100
 
-                if r_number > 0 and r_number < 20: # If the random number is higher than 0 but lesser than 20, we display the windows update screen
-                    self.seconds = randint(2, 5)  # Number of seconds the screen will be displayed for
+                if r_number > 0 and r_number < 10: # If the random number is higher than 0 but lesser than 20, we display the windows update screen
+                    self.seconds = randint(1, 3)  # Number of seconds the screen will be displayed for
                     self.currently_displaying = True
                     self.frames_to_pass = self.seconds * 60
 
@@ -193,13 +193,22 @@ def main() -> tp.NoReturn:
     items: tp.List[Item] = [copy(i) for i in ALL_GAME_ITEMS]
 
     current_map_item = Reference(None)  # Item currently visible on the map
-    current_map_item.set(ALL_GAME_ITEMS[len(ALL_GAME_ITEMS) - 1])
 
     windows_item = WindowsItemEffect()
 
     def randomize_enemy_type() -> EnemyType:
         r_number = randint(1, 30)
 
+        if game.rooms_finished > 20 and game.rooms_finished <= 40:
+            if r_number > 1 and r_number < 5:
+                return EnemyType.CIRCLE
+            if r_number > 5 and r_number < 10:
+                return EnemyType.FOUR_DIRECTIONS_CIRCLE
+            elif r_number > 10 and r_number < 15:
+                return EnemyType.ESCAPING_TRIANGLE
+            else:
+                return EnemyType.TRIANGLE
+        
         if r_number > 1 and r_number < 10:
             return EnemyType.CIRCLE
         elif r_number > 10 and r_number < 15:
@@ -233,7 +242,7 @@ def main() -> tp.NoReturn:
         return (len(filtered_collected_items) >= 1)
 
     def spawn_enemies():
-        r_number = randint(1, 5) * len(list(filter(lambda t: t.name == 'spawner' ,game.current_scene.tiles)))
+        r_number = randint(1, 3) * len(list(filter(lambda t: t.name == 'spawner' ,game.current_scene.tiles)))
         all_enemies_spawned.set(False)
         enemies_to_spawn.set(r_number)
 
@@ -370,7 +379,7 @@ def main() -> tp.NoReturn:
                                     # Spawn heart if rng hits right
 
                                     r_number = randint(1, 20)
-                                    if r_number > 10:
+                                    if r_number > 15:
                                         hearts.append(HeartDrop(enemy.x, enemy.y, _HEART_DROP_TEXTURE))
 
                     if AbstractEntity.entities_collided(player, enemy, 32, 32):
@@ -473,6 +482,7 @@ def main() -> tp.NoReturn:
                         hearts = []
                         spawn_enemies()
                         bullets = []
+                        current_map_item.set(None)
                         enemy_bullets = []
                         game.rooms_finished += 1
                         update_scene()
@@ -488,6 +498,7 @@ def main() -> tp.NoReturn:
                         spawn_enemies()
                         bullets = []
                         enemy_bullets = []
+                        current_map_item.set(None)
                         hearts = []
                         game.rooms_finished += 1
                         update_scene()
@@ -496,7 +507,8 @@ def main() -> tp.NoReturn:
                     elif tile.name == 'teleport_left':
                         if game.rooms_finished == 20:
                             enemies.append(Enemy(int(1024/2), int(572/2), EnemyType.TRIANGLE_BOSS, 5))
-                        
+
+                        current_map_item.set(None)                        
                         get_random_item()
                         moving_rectangle.move(MovementDirection.TO_RIGHT)
                         player.x = 960

@@ -1,7 +1,7 @@
 from re import I
 from .entity import AbstractEntity, _ENTITY_SIZE
 from .bullet import Bullet
-from pyray import draw_circle, RED, PURPLE, YELLOW, draw_triangle, Vector2
+from pyray import draw_circle, RED, PURPLE, YELLOW, BLACK, draw_triangle, Vector2
 from enum import IntEnum
 import typing as tp
 
@@ -12,6 +12,7 @@ class EnemyType(IntEnum):
     CIRCLE = 1
     ESCAPING_TRIANGLE = 2
     TRIANGLE_BOSS = 3
+    FOUR_DIRECTIONS_CIRCLE = 4
 
 
 class Enemy(AbstractEntity):
@@ -40,6 +41,10 @@ class Enemy(AbstractEntity):
             self.health = 15
             self.speed = 280.0
 
+        if self._type == EnemyType.FOUR_DIRECTIONS_CIRCLE:
+            self.health = 70
+            self.speed = 300
+
         if self._type == EnemyType.TRIANGLE_BOSS:
             self.health = 200
             self.speed = self._TRIANGLE_BOSS_SPEED
@@ -48,6 +53,8 @@ class Enemy(AbstractEntity):
         if self.health > 0:
             if self._type == EnemyType.CIRCLE:
                 draw_circle(self.x, self.y, 16, RED)
+            if self._type == EnemyType.FOUR_DIRECTIONS_CIRCLE:
+                draw_circle(self.x, self.y, 16, BLACK)
             if self._type == EnemyType.TRIANGLE:
                 draw_triangle(Vector2(self.x, self.y), Vector2(self.x - 16, self.y + 32), Vector2(self.x + 16, self.y + 32), PURPLE)
             if self._type == EnemyType.ESCAPING_TRIANGLE:
@@ -80,6 +87,16 @@ class Enemy(AbstractEntity):
                 self.y += int(self.speed * delta)
             if self.y < player_y + 16 and self.y - 32 > 0:
                 self.y -= int(self.speed * delta)
+
+        if self._type == EnemyType.FOUR_DIRECTIONS_CIRCLE:
+            if self.x > player_x + 16 and self.x + 32 < 1024:
+                self.x -= int(self.speed * delta)
+            elif self.x < player_x + 16 and self.x - 32 > 0:
+                self.x += int(self.speed * delta)
+            elif self.y > player_y + 16 and self.y + 32 < 576:
+                self.y -= int(self.speed * delta)
+            elif self.y < player_y + 16 and self.y - 32 > 0:
+                self.y += int(self.speed * delta)
 
         if self.health <= 0:
             self.x = -500
