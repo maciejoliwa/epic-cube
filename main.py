@@ -30,6 +30,7 @@ def main() -> tp.NoReturn:
     _CIRLCE_GLOW_TEXTURE = load_texture('./textures/circle-glow.png')
     _FOX_EARS = load_texture('./textures/fox-ears.png')
     _WINDOWS_UPDATE = load_texture('./textures/update.png')
+    _SPACE_TEXTURE = load_texture('./textures/space.png')
 
     class FlashingText:
         
@@ -253,9 +254,21 @@ def main() -> tp.NoReturn:
         if tile.name == 'floor':
             if game.rooms_finished > 20 and game.rooms_finished < 40:
                 return Tile('floor_past_20', tile.x, tile.y, Color(100, 50, 50, 255))
+            if game.rooms_finished > 40 and game.rooms_finished < 60:
+                return Tile('floor_past_20', tile.x, tile.y, Color(112, 9, 53, 255))
+            if game.rooms_finished > 60 and game.rooms_finished < 80:
+                return Tile('floor_past_20', tile.x, tile.y, Color(195, 66, 36, 255))
+            if game.rooms_finished > 80 and game.rooms_finished < 100:
+                return Tile('floor_past_20', tile.x, tile.y, Color(0, 0, 0, 0))
         if tile.name == 'wall':
             if game.rooms_finished > 20 and game.rooms_finished < 40:
                 return Tile('wall_past_20', tile.x, tile.y, Color(70, 40, 40, 255))
+            if game.rooms_finished > 40 and game.rooms_finished < 60:  # Credits to Jula, very cool colours
+                return Tile('floor_past_20', tile.x, tile.y, Color(80, 2, 23, 255))
+            if game.rooms_finished > 60 and game.rooms_finished < 80:
+                return Tile('floor_past_20', tile.x, tile.y, Color(150, 30, 20, 255))
+            if game.rooms_finished > 80 and game.rooms_finished < 100:
+                return Tile('floor_past_20', tile.x, tile.y, Color(0, 0, 0, 0))
         else:
                 return tile
 
@@ -582,6 +595,7 @@ def main() -> tp.NoReturn:
         begin_drawing()
         clear_background(WHITE)
 
+        draw_texture(_SPACE_TEXTURE, 0, 0, RAYWHITE)
         game.current_scene.render()
 
         if len(enemies) > 0:
